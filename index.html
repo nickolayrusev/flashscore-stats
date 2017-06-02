@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://code.jquery.com/jquery-1.12.4.js" ></script>
+    <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js" ></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css">
+</head>
+<body>
+<table id="example" class="display" cellspacing="0" width="100%">
+</table>
+<script>
+    $(document).ready(function() {
+        console.log('go')
+        $.getJSON('result.json',function (data) {
+            console.log(data)
+            $('#example').DataTable( {
+                "data":data.filter(g=>g.size >= 5),
+                "columns": [
+                    { "data": "title", title:'title' },
+                    { "data": "averageGoals", title:'Average goals' },
+                    { "data": "bothTeamsToScorePercentage", title: "Both teams to score"},
+                    { "data": "overPercentage", title: "Over %"  },
+                    { "data": "underPercentage", title: "Under %"  },
+                    { "data": "size" , title: "Size"},
+                ]
+            } );
+        });
+    });
+</script>
+</body>
+</html>

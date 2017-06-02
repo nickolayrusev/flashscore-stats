@@ -1,0 +1,25 @@
+{
+  "name": "flashscore-stats",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "babel-node index.js",
+    "build": "babel index.js -o compiled.js"
+  },
+  "author": "Nickolay Rusev <nickolay.rusev@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "lodash": "^4.17.4",
+    "node-fetch": "^1.7.0",
+    "util": "^0.10.3"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-polyfill": "^6.23.0",
+    "babel-preset-env": "^1.5.1",
+    "babel-preset-stage-3": "^6.24.1"
+  }
+}
