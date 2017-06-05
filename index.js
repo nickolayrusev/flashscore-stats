@@ -5,16 +5,16 @@ import {inspect} from 'util'
 import _ from 'lodash'
 
 /**
- *
+ * [{id:'lalala', state:'n/a'}]
  * @returns {Promise.<*|Array>}
  */
 const fetchGameIds = async () => {
     let result = await fetch('http://www.flashscore.mobi/').then(r => r.text());
     let ids = $('div[id=score-data] > a', result).map((i, e) => {
-            return $(e).attr('href')
+            return {id: $(e).attr('href'), state: $(e).text()}
         }
     ).get();
-    return ids.map(e => (e.substring(7, 15)))
+    return ids.map(e => ({id: e.id.substring(7, 15), status: e.state}))
 };
 
 /**
@@ -23,16 +23,23 @@ const fetchGameIds = async () => {
  * @param all
  * @returns {Array}
  */
-const fetchFeed = (ids, all = false) => {
+const fetchHeadToHeadFeed = (ids, all = false) => {
+    console.log(ids)
     if (!all)
         ids = ids.slice(0, 5)
-    return ids.map(id => {
-        const FEED = `http://d.flashscore.com/x/feed/d_hh_${id}_en_1`;
-        return fetch(FEED, {headers: {'X-Fsign': 'SW9D1eZo'}}).then(r => r.text())
+    return ids.map(i => {
+        const id = i.id,
+            state = i.status;
+        const HEAD_TO_HEAD_FEED = `http://d.flashscore.com/x/feed/d_hh_${id}_en_1`;
+        return fetch(HEAD_TO_HEAD_FEED, {headers: {'X-Fsign': 'SW9D1eZo'}}).then(r => r.text()).then(text => ({
+            text,
+            id,
+            state
+        }))
     })
 };
 
-const extractHeadToHead = (html) => {
+const extractHeadToHead = (html, state) => {
     return $('#tab-h2h-overall .h2h_mutual', html).map((i, e) => {
         let title = $('table thead > tr', e).text().substring('Head-to-head matches: '.length);
 
@@ -47,7 +54,7 @@ const extractHeadToHead = (html) => {
                     score: $(cols[4]).text()
                 };
         }).get();
-        return {title, games}
+        return {title, games, state}
     }).get()[0]
 };
 
@@ -78,21 +85,22 @@ let totalGoals = (game) => {
 };
 
 const computeStats = (game, size = 5) => {
-    let games = game.games.slice(0,size).map((g) => {
-                return {
-                    ...g,
-                    isOver: isOver(g),
-                    isUnder: !isOver(g),
-                    bothTeamsScored: bothTeamsScored(g),
-                    totalGoals: totalGoals(g)
-                }});
+    let games = game.games.slice(0, size).map((g) => {
+        return {
+            ...g,
+            isOver: isOver(g),
+            isUnder: !isOver(g),
+            bothTeamsScored: bothTeamsScored(g),
+            totalGoals: totalGoals(g)
+        }
+    });
 
     return {
         ...game,
-        games:games,
+        games: games,
         overPercentage: games.length === 0 ? '0%' : Math.round(games.filter(g => g.isOver).length / games.length * 100) + '%',
         underPercentage: games.length === 0 ? '0%' : Math.round(games.filter(g => g.isUnder).length / games.length * 100) + '%',
-        bothTeamsToScorePercentage :games.length === 0 ? '0%' : Math.round(games.filter(g => g.bothTeamsScored).length / games.length * 100) + '%',
+        bothTeamsToScorePercentage: games.length === 0 ? '0%' : Math.round(games.filter(g => g.bothTeamsScored).length / games.length * 100) + '%',
         averageGoals: games.length === 0 ? '0%' : Math.round(_.sum(games.map(t => t.totalGoals)) / games.length),
         size: games.length
     }
@@ -100,11 +108,11 @@ const computeStats = (game, size = 5) => {
 
 (async () => {
     let ids = await fetchGameIds();
-    let result = await Promise.all(fetchFeed(ids, true));
+    let result = await Promise.all(fetchHeadToHeadFeed(ids, false));
     console.log('result is ', result.length);
 
     const obj = result.reduce((i, n) => {
-        let stats = computeStats(extractHeadToHead(n))
+        let stats = computeStats(extractHeadToHead(n.text, n.state))
         return [...i, stats]
     }, []);
 
