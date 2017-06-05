@@ -18,7 +18,9 @@
             $('#example').DataTable( {
                 "data":data.filter(g=>g.size >= 5),
                 "columns": [
-                    { "data": "title", title:'title' },
+                    { "data": "title", title:'Title' },
+                    { "data": "state", title:'State' },
+                    { "data": "isLive", title:'Live' },
                     { "data": "averageGoals", title:'Average goals' },
                     { "data": "bothTeamsToScorePercentage", title: "Both teams to score"},
                     { "data": "overPercentage", title: "Over %"  },

@@ -8,13 +8,13 @@ import _ from 'lodash'
  * [{id:'lalala', state:'n/a'}]
  * @returns {Promise.<*|Array>}
  */
-const fetchGameIds = async () => {
+const fetchGames = async () => {
     let result = await fetch('http://www.flashscore.mobi/').then(r => r.text());
     let ids = $('div[id=score-data] > a', result).map((i, e) => {
-            return {id: $(e).attr('href'), state: $(e).text()}
+            return {id: $(e).attr('href'), state: $(e).text(), isLive: $(e).attr('class') === 'live' }
         }
     ).get();
-    return ids.map(e => ({id: e.id.substring(7, 15), status: e.state}))
+    return ids.map(e => ({id: e.id.substring(7, 15), status: e.state, isLive: e.isLive }))
 };
 
 /**
@@ -24,22 +24,25 @@ const fetchGameIds = async () => {
  * @returns {Array}
  */
 const fetchHeadToHeadFeed = (ids, all = false) => {
-    console.log(ids)
+    // console.log(ids)
     if (!all)
         ids = ids.slice(0, 5)
     return ids.map(i => {
         const id = i.id,
-            state = i.status;
+            state = i.status,
+            isLive = i.isLive;
+
         const HEAD_TO_HEAD_FEED = `http://d.flashscore.com/x/feed/d_hh_${id}_en_1`;
         return fetch(HEAD_TO_HEAD_FEED, {headers: {'X-Fsign': 'SW9D1eZo'}}).then(r => r.text()).then(text => ({
             text,
             id,
-            state
+            state,
+            isLive,
         }))
     })
 };
 
-const extractHeadToHead = (html, state) => {
+const extractHeadToHead = (html, state, isLive) => {
     return $('#tab-h2h-overall .h2h_mutual', html).map((i, e) => {
         let title = $('table thead > tr', e).text().substring('Head-to-head matches: '.length);
 
@@ -54,7 +57,7 @@ const extractHeadToHead = (html, state) => {
                     score: $(cols[4]).text()
                 };
         }).get();
-        return {title, games, state}
+        return {title, games, state, isLive}
     }).get()[0]
 };
 
@@ -107,12 +110,12 @@ const computeStats = (game, size = 5) => {
 };
 
 (async () => {
-    let ids = await fetchGameIds();
-    let result = await Promise.all(fetchHeadToHeadFeed(ids, false));
+    let ids  = await fetchGames();
+    let result = await Promise.all(fetchHeadToHeadFeed(ids, true));
     console.log('result is ', result.length);
 
     const obj = result.reduce((i, n) => {
-        let stats = computeStats(extractHeadToHead(n.text, n.state))
+        let stats = computeStats(extractHeadToHead(n.text, n.state, n.isLive))
         return [...i, stats]
     }, []);
 
