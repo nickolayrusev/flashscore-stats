@@ -15,7 +15,8 @@
         console.log('go')
         $.getJSON('result.json',function (data) {
             console.log(data)
-            $('#example').DataTable( {
+            var table = $('#example').DataTable( {
+                select: true,
                 "data":data.filter(g=>g.size >= 5),
                 "columns": [
                     { "data": "title", title:'Title' },
@@ -27,6 +28,11 @@
                     { "data": "underPercentage", title: "Under %"  },
                     { "data": "size" , title: "Size"},
                 ]
+            } );
+
+            table.on( 'click', 'tr', function () {
+                $(this).toggleClass('selected');
+                console.log(table.rows('.selected').data()[0].games)
             } );
         });
     });

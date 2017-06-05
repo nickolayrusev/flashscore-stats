@@ -11,10 +11,16 @@ import _ from 'lodash'
 const fetchGames = async () => {
     let result = await fetch('http://www.flashscore.mobi/').then(r => r.text());
     let ids = $('div[id=score-data] > a', result).map((i, e) => {
-            return {id: $(e).attr('href'), state: $(e).text(), isLive: $(e).attr('class') === 'live' }
+            let championship = $(e).prevAll('h4').first().text();
+            return {
+                id: $(e).attr('href'),
+                state: $(e).text(),
+                isLive: $(e).attr('class') === 'live',
+                championship: championship
+            }
         }
     ).get();
-    return ids.map(e => ({id: e.id.substring(7, 15), status: e.state, isLive: e.isLive }))
+    return ids.map(e => ({id: e.id.substring(7, 15), status: e.state, isLive: e.isLive, championship: e.championship}))
 };
 
 /**
@@ -30,7 +36,8 @@ const fetchHeadToHeadFeed = (ids, all = false) => {
     return ids.map(i => {
         const id = i.id,
             state = i.status,
-            isLive = i.isLive;
+            isLive = i.isLive,
+            championship = i.championship;
 
         const HEAD_TO_HEAD_FEED = `http://d.flashscore.com/x/feed/d_hh_${id}_en_1`;
         return fetch(HEAD_TO_HEAD_FEED, {headers: {'X-Fsign': 'SW9D1eZo'}}).then(r => r.text()).then(text => ({
@@ -38,11 +45,12 @@ const fetchHeadToHeadFeed = (ids, all = false) => {
             id,
             state,
             isLive,
+            championship
         }))
     })
 };
 
-const extractHeadToHead = (html, state, isLive) => {
+const extractHeadToHead = (html, state, isLive, championship) => {
     return $('#tab-h2h-overall .h2h_mutual', html).map((i, e) => {
         let title = $('table thead > tr', e).text().substring('Head-to-head matches: '.length);
 
@@ -57,7 +65,7 @@ const extractHeadToHead = (html, state, isLive) => {
                     score: $(cols[4]).text()
                 };
         }).get();
-        return {title, games, state, isLive}
+        return {title, games, state, isLive, championship}
     }).get()[0]
 };
 
@@ -110,12 +118,12 @@ const computeStats = (game, size = 5) => {
 };
 
 (async () => {
-    let ids  = await fetchGames();
+    let ids = await fetchGames();
     let result = await Promise.all(fetchHeadToHeadFeed(ids, true));
     console.log('result is ', result.length);
 
     const obj = result.reduce((i, n) => {
-        let stats = computeStats(extractHeadToHead(n.text, n.state, n.isLive))
+        let stats = computeStats(extractHeadToHead(n.text, n.state, n.isLive, n.championship))
         return [...i, stats]
     }, []);
 
