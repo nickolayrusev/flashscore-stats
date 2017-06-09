@@ -30,7 +30,6 @@ const fetchGames = async () => {
  * @returns {Array}
  */
 const fetchHeadToHeadFeed = (ids, all = false) => {
-    // console.log(ids)
     if (!all)
         ids = ids.slice(0, 5)
     return ids.map(i => {
@@ -89,7 +88,6 @@ let isOver = (game) => {
 };
 
 let totalGoals = (game) => {
-    console.log('game is ', JSON.stringify(game))
     const score = splitScore(game.score);
     let home = Number(score[0] && score[0].trim()),
         away = Number(score[1] && score[1].trim());
