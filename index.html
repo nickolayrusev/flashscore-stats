@@ -32,7 +32,8 @@
 
             table.on( 'click', 'tr', function () {
                 $(this).toggleClass('selected');
-                console.log(table.rows('.selected').data()[0].games)
+                var data = table.rows('.selected').data()[0];
+                console.log(data || 'no data')
             } );
         });
     });

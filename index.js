@@ -78,8 +78,8 @@ const splitScore = (score) => {
 
 let bothTeamsScored = (game) => {
     const score = splitScore(game.score);
-    let home = score[0].trim(),
-        away = score[1].trim();
+    let home = score[0] && score[0].trim(),
+        away = score[1] && score[1].trim();
 
     return home !== '0' && away !== '0'
 };
@@ -89,9 +89,10 @@ let isOver = (game) => {
 };
 
 let totalGoals = (game) => {
+    console.log('game is ', JSON.stringify(game))
     const score = splitScore(game.score);
-    let home = Number(score[0].trim()),
-        away = Number(score[1].trim());
+    let home = Number(score[0] && score[0].trim()),
+        away = Number(score[1] && score[1].trim());
     return home + away
 };
 
