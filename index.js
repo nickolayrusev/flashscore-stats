@@ -75,10 +75,14 @@ const splitScore = (score) => {
     return score.split(':')
 };
 
+const trimScore = (score) => {
+    return score && score.trim()
+}
+
 let bothTeamsScored = (game) => {
     const score = splitScore(game.score);
-    let home = score[0] && score[0].trim(),
-        away = score[1] && score[1].trim();
+    let home = trimScore(score[0]),
+        away = trimScore(score[1]);
 
     return home !== '0' && away !== '0'
 };
@@ -89,8 +93,8 @@ let isOver = (game) => {
 
 let totalGoals = (game) => {
     const score = splitScore(game.score);
-    let home = Number(score[0] && score[0].trim()),
-        away = Number(score[1] && score[1].trim());
+    let home = Number(trimScore(score[0])),
+        away = Number(trimScore(score[1]));
     return home + away
 };
 
