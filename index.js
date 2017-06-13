@@ -20,7 +20,12 @@ const fetchGames = async () => {
             }
         }
     ).get();
-    return ids.map(e => ({id: e.id.substring(7, 15), status: e.state, isLive: e.isLive, championship: e.championship}))
+    return ids.map(e => ({
+        id: e.id.substring(7, 15),
+        status: e.state,
+        isLive: e.isLive,
+        championship: e.championship
+    }))
 };
 
 /**
@@ -69,10 +74,8 @@ const extractHeadToHead = (html, state, isLive, championship) => {
 };
 
 const splitScore = (score) => {
-    if (score.includes('(')) {
-        return score.substring(0, score.indexOf('(')).split(':')
-    }
-    return score.split(':')
+    return (score.includes('(')) ?
+          score.substring(0, score.indexOf('(')).split(':') :  score.split(':')
 };
 
 const trimScore = (score) => {
