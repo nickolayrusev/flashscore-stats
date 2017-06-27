@@ -118,7 +118,7 @@ const computeStats = (game, size = 5) => {
         overPercentage: games.length === 0 ? '0%' : Math.round(games.filter(g => g.isOver).length / games.length * 100) + '%',
         underPercentage: games.length === 0 ? '0%' : Math.round(games.filter(g => g.isUnder).length / games.length * 100) + '%',
         bothTeamsToScorePercentage: games.length === 0 ? '0%' : Math.round(games.filter(g => g.bothTeamsScored).length / games.length * 100) + '%',
-        averageGoals: games.length === 0 ? '0%' : Math.round(_.sum(games.map(t => t.totalGoals)) / games.length),
+        averageGoals: games.length === 0 ? 0 : (_.sum(games.map(t => t.totalGoals)) / games.length).toFixed(2),
         size: games.length
     }
 };
