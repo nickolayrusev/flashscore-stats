@@ -3,6 +3,7 @@ import $ from 'cheerio'
 import fs from 'fs'
 import {inspect} from 'util'
 import _ from 'lodash'
+import Game from './Game'
 
 /**
  * [{id:'lalala', state:'n/a'}]
@@ -73,45 +74,8 @@ const extractHeadToHead = (html, state, isLive, championship) => {
     }).get()[0]
 };
 
-const splitScore = (score) => {
-    return (score.includes('(')) ?
-          score.substring(0, score.indexOf('(')).split(':') :  score.split(':')
-};
-
-const trimScore = (score) => {
-    return score && score.trim()
-}
-
-let bothTeamsScored = (game) => {
-    const score = splitScore(game.score);
-    let home = trimScore(score[0]),
-        away = trimScore(score[1]);
-
-    return home !== '0' && away !== '0'
-};
-
-let isOver = (game) => {
-    return totalGoals(game) > 2.5
-};
-
-let totalGoals = (game) => {
-    const score = splitScore(game.score);
-    let home = Number(trimScore(score[0])),
-        away = Number(trimScore(score[1]));
-    return home + away
-};
-
 const computeStats = (game, size = 5) => {
-    let games = game.games.slice(0, size).map((g) => {
-        return {
-            ...g,
-            isOver: isOver(g),
-            isUnder: !isOver(g),
-            bothTeamsScored: bothTeamsScored(g),
-            totalGoals: totalGoals(g)
-        }
-    });
-
+    let games = game.games.slice(0, size).map(g=> (new Game(g).toObject()))
     return {
         ...game,
         games: games,
