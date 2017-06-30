@@ -4,6 +4,7 @@ export default class Game {
     this.date = date
     this.league = league
     this.away = away
+    this.home = home
 
     this._parsedScore = this.constructor.splitScore(score),
     this._homeTeamScore = this._parsedScore[0]
