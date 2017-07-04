@@ -1,14 +1,18 @@
+const isOverNGoals = (limit) => (goals) => (goals > limit);
+const isOver25 = isOverNGoals(2.5);
+const isOver35  = isOverNGoals(3.5);
+
 export default class Game {
   constructor({score, date, league, home, away}){
-    this.score = score
-    this.date = date
-    this.league = league
-    this.away = away
-    this.home = home
+    this.score = score;
+    this.date = date;
+    this.league = league;
+    this.away = away;
+      this.home = home;
 
-    this._parsedScore = this.constructor.splitScore(score),
-    this._homeTeamScore = this._parsedScore[0]
-    this._awayTeamScore = this._parsedScore[1]
+    this._parsedScore = this.constructor.splitScore(score);
+    this._homeTeamScore = this._parsedScore[0];
+    this._awayTeamScore = this._parsedScore[1];
   }
 
   static splitScore (score) {
@@ -16,24 +20,28 @@ export default class Game {
             score.substring(0, score.indexOf('(')).split(':') :  score.split(':')
   };
 
-  trimScore(score) {
+  static trimScore(score) {
       return score && score.trim()
   };
 
   bothTeamsScored() {
-      let home = this.trimScore(this._homeTeamScore),
-          away = this.trimScore(this._awayTeamScore);
+      let home = Game.trimScore(this._homeTeamScore),
+          away = Game.trimScore(this._awayTeamScore);
 
       return home !== '0' && away !== '0'
   };
 
-  isOver() {
-      return this.totalGoals() > 2.5
+  isOver25() {
+      return isOver25(this.totalGoals())
+  };
+
+  isOver35(){
+    return isOver35(this.totalGoals());
   };
 
   totalGoals(){
-      let home = Number(this.trimScore(this._homeTeamScore)),
-          away = Number(this.trimScore(this._awayTeamScore));
+      let home = Number(Game.trimScore(this._homeTeamScore)),
+          away = Number(Game.trimScore(this._awayTeamScore));
       return home + away
   };
 
@@ -45,8 +53,8 @@ export default class Game {
       date: this.date,
       league: this.league,
       totalGoals: this.totalGoals(),
-      isOver : this.isOver(),
-      isUnder: !this.isOver(),
+      isOver : this.isOver25(),
+      isUnder: !this.isOver25(),
       bothTeamsScored: this.bothTeamsScored()
     }
   }
