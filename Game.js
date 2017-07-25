@@ -11,8 +11,8 @@ export default class Game {
       this.home = home;
 
     this._parsedScore = this.constructor.splitScore(score);
-    this._homeTeamScore = this._parsedScore[0];
-    this._awayTeamScore = this._parsedScore[1];
+    this._homeTeamScore = Game.trimScore(this._parsedScore[0]);
+    this._awayTeamScore = Game.trimScore(this._parsedScore[1]);
   }
 
   static splitScore (score) {
@@ -25,8 +25,8 @@ export default class Game {
   };
 
   bothTeamsScored() {
-      let home = Game.trimScore(this._homeTeamScore),
-          away = Game.trimScore(this._awayTeamScore);
+      const home = this._homeTeamScore,
+          away = this._awayTeamScore;
 
       return home !== '0' && away !== '0'
   };
@@ -40,8 +40,8 @@ export default class Game {
   };
 
   totalGoals(){
-      let home = Number(Game.trimScore(this._homeTeamScore)),
-          away = Number(Game.trimScore(this._awayTeamScore));
+      const home = Number(this._homeTeamScore),
+          away = Number(this._awayTeamScore);
       return home + away
   };
 
